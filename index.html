@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>personal_365_Savings</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #1a6b4a; --green-mid: #2d9e71; --green-light: #d4f0e4; --green-pale: #f0faf5;
+  --gold: #c49a2e; --gold-light: #fdf3d8;
+  --blue: #1a4e8c; --blue-light: #e8f0fb;
+  --text: #1a1f1c; --text-muted: #6b7a72;
+  --surface: #ffffff; --bg: #f2f7f4;
+  --border: rgba(26,107,74,0.12); --radius: 20px;
+  --shadow: 0 4px 24px rgba(26,107,74,0.10);
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); min-height: 100vh; display: flex; justify-content: center; }
+.phone { width: 100%; max-width: 390px; min-height: 100vh; background: var(--bg); position: relative; }
+
+/* HEADER */
+.header { background: var(--green); padding: 48px 24px 30px; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+.header::after { content: ''; position: absolute; bottom: -30px; left: 40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+.header-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+.header-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #fff; line-height: 1.2; margin-bottom: 16px; }
+.header-title em { font-style: italic; color: #7ee8b8; }
+.header-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 6px 14px; }
+.badge-label { font-size: 11px; color: rgba(255,255,255,0.65); }
+.badge-val { font-size: 13px; font-weight: 600; color: #fff; }
+
+/* SETTINGS PANEL */
+.settings-panel { background: var(--surface); margin: 0 16px; border-radius: var(--radius); padding: 18px 18px 14px; box-shadow: var(--shadow); transform: translateY(-18px); border: 1px solid var(--border); }
+.settings-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+.settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.field-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+.field-input { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
+.field-input:focus { border-color: var(--green-mid); }
+.apply-btn { width: 100%; background: var(--green); color: #fff; border: none; border-radius: 12px; padding: 11px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 4px; }
+.apply-btn:active { transform: scale(0.98); background: #145538; }
+
+/* MODE TOGGLE */
+.mode-toggle-wrap { margin: 0 16px 14px; }
+.mode-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.mode-btn { flex: 1; padding: 10px 8px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-align: center; }
+.mode-btn.active { background: var(--green); color: #fff; }
+
+/* CALCULATOR */
+.calc-panel { background: var(--surface); margin: 0 16px 14px; border-radius: var(--radius); padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.calc-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.calc-result { background: var(--green-pale); border-radius: 12px; padding: 12px 14px; border: 1px solid var(--green-light); }
+.calc-result-label { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+.calc-result-value { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--green); }
+.calc-result-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.calc-apply-btn { width: 100%; background: var(--green-mid); color: #fff; border: none; border-radius: 10px; padding: 10px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+.calc-apply-btn:active { background: var(--green); }
+
+/* GOAL PROGRESS */
+.goal-banner { margin: -4px 16px 14px; background: var(--surface); border-radius: var(--radius); padding: 16px 18px; border: 1px solid var(--border); }
+.goal-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.goal-info {}
+.goal-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; }
+.goal-numbers { font-size: 22px; font-family: 'DM Serif Display', serif; color: var(--text); }
+.goal-numbers span { color: var(--green); }
+.goal-pct-badge { background: var(--green-light); border-radius: 50px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--green); }
+.goal-bar-bg { height: 10px; background: var(--green-light); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+.goal-bar-plan { height: 100%; background: linear-gradient(90deg, var(--green-mid), var(--green)); border-radius: 99px; transition: width 0.5s ease; }
+.goal-sub-row { display: flex; justify-content: space-between; }
+.goal-sub { font-size: 11px; color: var(--text-muted); }
+.goal-gap { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+.goal-gap strong { color: var(--green); }
+.goal-gap.over strong { color: var(--gold); }
+
+/* PROGRESS */
+.progress-wrap { background: var(--surface); margin: 0 16px 14px; border-radius: var(--radius); padding: 16px 18px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(26,107,74,0.05); }
+.progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.progress-label { font-size: 13px; color: var(--text-muted); }
+.progress-fraction { font-size: 13px; font-weight: 600; color: var(--green); }
+.progress-bar-bg { height: 8px; background: var(--green-light); border-radius: 99px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green-mid), var(--green)); border-radius: 99px; transition: width 0.5s ease; }
+.progress-bottom { display: flex; justify-content: space-between; margin-top: 8px; }
+.progress-saved { font-size: 12px; color: var(--text-muted); }
+.progress-saved strong { color: var(--text); }
+
+/* NEXT REMINDER */
+.next-banner { margin: 0 16px 14px; background: var(--gold-light); border: 1px solid rgba(196,154,46,0.3); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.next-icon { width: 38px; height: 38px; background: var(--gold); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.next-title { font-size: 13px; font-weight: 600; color: #7a5c00; margin-bottom: 2px; }
+.next-sub { font-size: 12px; color: #a07a20; }
+
+/* MONTHS */
+.section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: 4px 24px 10px; }
+.months-list { padding: 0 16px; display: flex; flex-direction: column; gap: 9px; margin-bottom: 16px; }
+.month-card { background: var(--surface); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(26,107,74,0.04); cursor: pointer; transition: transform 0.15s; position: relative; overflow: hidden; }
+.month-card:active { transform: scale(0.98); }
+.month-card.done { background: var(--green-pale); border-color: rgba(45,158,113,0.25); }
+.month-card.current { border-color: var(--green-mid); box-shadow: 0 0 0 2px rgba(45,158,113,0.18); }
+.month-card.current::before { content: 'NOW'; position: absolute; top: 0; right: 0; background: var(--green); color: #fff; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 0 16px 0 10px; }
+.m-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+.m-icon.done-icon { background: var(--green-light); }
+.m-icon.pending-icon { background: #f0f0f0; }
+.m-icon.current-icon { background: var(--green); }
+.m-info { flex: 1; }
+.m-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1px; }
+.m-sub { font-size: 11px; color: var(--text-muted); }
+.month-card.done .m-name { color: var(--green); }
+.m-right { text-align: right; flex-shrink: 0; }
+.m-amount { font-family: 'DM Serif Display', serif; font-size: 19px; color: var(--text); }
+.month-card.done .m-amount { color: var(--green-mid); }
+.month-card.current .m-amount { color: var(--green); }
+.m-formula { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+/* SHARE SECTION */
+.share-section { margin: 0 16px 14px; background: var(--surface); border-radius: var(--radius); padding: 18px; border: 1px solid var(--border); }
+.share-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.share-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+.share-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.share-tab { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; background: var(--bg); color: var(--text-muted); transition: all 0.15s; text-align: center; }
+.share-tab.active { background: var(--green); color: #fff; border-color: var(--green); }
+.share-pane { display: none; }
+.share-pane.visible { display: block; }
+.share-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.share-input { flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 9px 13px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
+.share-input:focus { border-color: var(--green-mid); }
+.share-btn { background: var(--green); color: #fff; border: none; border-radius: 10px; padding: 9px 14px; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; transition: background 0.15s, transform 0.1s; }
+.share-btn:active { transform: scale(0.97); background: #145538; }
+.share-note { font-size: 11px; color: var(--text-muted); }
+
+/* CONTACTS */
+.contacts-list { display: flex; flex-direction: column; gap: 8px; }
+.contact-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border); }
+.contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; color: var(--green); font-weight: 600; }
+.contact-email { flex: 1; font-size: 12px; color: var(--text); word-break: break-all; }
+.contact-remove { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 4px; }
+.add-contact-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.contacts-send-btn { width: 100%; margin-top: 10px; background: var(--green); color: #fff; border: none; border-radius: 12px; padding: 11px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.contacts-send-btn:active { background: #145538; }
+.empty-contacts { font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px 0; }
+
+/* REMINDERS */
+.notif-section { margin: 0 16px 14px; background: var(--surface); border-radius: var(--radius); padding: 18px; border: 1px solid var(--border); }
+.notif-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.notif-row:last-child { border-bottom: none; padding-bottom: 0; }
+.notif-row:first-child { padding-top: 0; }
+.notif-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.notif-sub { font-size: 11px; color: var(--text-muted); }
+.toggle { width: 44px; height: 26px; background: var(--green); border-radius: 99px; position: relative; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: left 0.2s; }
+.toggle.off { background: #ddd; }
+.toggle.on::after { left: 21px; }
+.toggle.off::after { left: 3px; }
+.email-field-wrap { display: flex; gap: 8px; margin-top: 10px; }
+
+/* STORAGE INDICATOR */
+.storage-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 50px; padding: 4px 12px; margin-top: 8px; }
+.storage-badge span { font-size: 11px; color: rgba(255,255,255,0.8); }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: #fff; font-size: 13px; font-weight: 500; padding: 11px 20px; border-radius: 99px; white-space: nowrap; transition: transform 0.3s ease; z-index: 200; pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.bottom-space { height: 40px; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-label">personal_365_Savings · 2025</div>
+    <div class="header-title">Your <em>personal</em><br>savings plan</div>
+    <div class="header-badges">
+      <div class="badge"><span class="badge-label">Monthly x</span><span class="badge-val" id="hdr-x">$50</span></div>
+      <div class="badge"><span class="badge-label">Plan total</span><span class="badge-val" id="hdr-plan">$3,950</span></div>
+      <div class="badge" id="hdr-goal-badge" style="display:none"><span class="badge-label">Goal</span><span class="badge-val" id="hdr-goal">—</span></div>
+    </div>
+    <div class="storage-badge"><span>💾 Auto-saved</span></div>
+  </div>
+
+  <!-- MODE TOGGLE -->
+  <div class="mode-toggle-wrap" style="transform: translateY(-10px);">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-monthly" onclick="switchMode('monthly')">📅 Set monthly amount</button>
+      <button class="mode-btn" id="mode-goal" onclick="switchMode('goal')">🎯 I have a target total</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS — Monthly mode -->
+  <div class="settings-panel" id="panel-monthly" style="transform: translateY(-14px);">
+    <div class="settings-title">⚙️ Customize your plan</div>
+    <div class="settings-row">
+      <div>
+        <div class="field-label">Monthly base (x)</div>
+        <input class="field-input" type="number" id="inp-x" value="50" min="1" placeholder="e.g. 50">
+      </div>
+      <div>
+        <div class="field-label">Year-end goal ($)</div>
+        <input class="field-input" type="number" id="inp-goal" value="" placeholder="optional">
+      </div>
+    </div>
+    <button class="apply-btn" onclick="applySettings()">Apply changes</button>
+  </div>
+
+  <!-- CALCULATOR — Goal mode -->
+  <div class="calc-panel" id="panel-goal" style="display:none; transform: translateY(-14px);">
+    <div class="calc-title">🎯 Calculate monthly from target</div>
+    <div class="calc-row">
+      <div>
+        <div class="field-label">I want to save ($)</div>
+        <input class="field-input" type="number" id="calc-target" placeholder="e.g. 10000" oninput="recalcFromGoal()">
+      </div>
+      <div>
+        <div class="field-label">By end of year</div>
+        <input class="field-input" type="number" id="calc-months-left" placeholder="months left" readonly>
+      </div>
+    </div>
+    <div class="calc-result" id="calc-result" style="display:none">
+      <div class="calc-result-label">Required monthly base (x)</div>
+      <div class="calc-result-value" id="calc-result-value">$0</div>
+      <div class="calc-result-sub" id="calc-result-sub"></div>
+    </div>
+    <button class="calc-apply-btn" id="calc-apply-btn" onclick="applyFromGoalCalc()" style="display:none">
+      ✓ Use this plan
+    </button>
+  </div>
+
+  <!-- GOAL VS PLAN -->
+  <div class="goal-banner" id="goal-banner" style="display:none">
+    <div class="goal-top">
+      <div class="goal-info">
+        <div class="goal-label">Goal vs plan</div>
+        <div class="goal-numbers" id="goal-numbers">$0 <span>/ $0</span></div>
+      </div>
+      <div class="goal-pct-badge" id="goal-pct">0%</div>
+    </div>
+    <div class="goal-bar-bg">
+      <div class="goal-bar-plan" id="goal-bar-plan" style="width:0%"></div>
+    </div>
+    <div class="goal-sub-row">
+      <div class="goal-sub">Plan: <strong id="gs-plan">$0</strong></div>
+      <div class="goal-sub">Goal: <strong id="gs-goal">$0</strong></div>
+    </div>
+    <div class="goal-gap" id="goal-gap"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span class="progress-label">Months completed</span>
+      <span class="progress-fraction" id="prog-fraction">0 / 12</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-bar" style="width:0%"></div></div>
+    <div class="progress-bottom">
+      <span class="progress-saved">Saved: <strong id="prog-saved">$0</strong></span>
+      <span class="progress-saved">Left: <strong id="prog-left">$3,950</strong></span>
+    </div>
+  </div>
+
+  <!-- NEXT REMINDER -->
+  <div class="next-banner" id="next-banner">
+    <div class="next-icon">🔔</div>
+    <div>
+      <div class="next-title" id="next-title">Next reminder: Jan 31</div>
+      <div class="next-sub" id="next-sub">Loading…</div>
+    </div>
+  </div>
+
+  <!-- MONTHS -->
+  <div class="section-label">All 12 months</div>
+  <div class="months-list" id="months-list"></div>
+
+  <!-- SHARE -->
+  <div class="share-section">
+    <div class="share-title">📤 Share your progress</div>
+    <div class="share-sub">Send your savings results via email.</div>
+    <div class="share-tabs">
+      <div class="share-tab active" onclick="switchTab('email')">📧 Email</div>
+      <div class="share-tab" onclick="switchTab('contacts')">👥 My contacts</div>
+      <div class="share-tab" onclick="switchTab('link')">🔗 Copy link</div>
+    </div>
+
+    <!-- Email tab -->
+    <div class="share-pane visible" id="pane-email">
+      <div class="share-input-row">
+        <input class="share-input" type="email" id="share-email" placeholder="friend@email.com">
+        <button class="share-btn" onclick="shareEmail()">Send</button>
+      </div>
+      <div class="share-note">They'll receive your current progress & savings plan summary.</div>
+    </div>
+
+    <!-- Contacts tab -->
+    <div class="share-pane" id="pane-contacts">
+      <div class="add-contact-row">
+        <input class="share-input" type="email" id="new-contact-email" placeholder="Add email address…">
+        <button class="share-btn" onclick="addContact()">Add</button>
+      </div>
+      <div class="contacts-list" id="contacts-list"></div>
+      <button class="contacts-send-btn" onclick="sendToContacts()">Send progress to all contacts ↗</button>
+    </div>
+
+    <!-- Link tab -->
+    <div class="share-pane" id="pane-link">
+      <div class="share-input-row">
+        <input class="share-input" id="link-val" readonly value="personal365.app/s/abc123" style="font-size:12px; color: var(--text-muted);">
+        <button class="share-btn" onclick="copyLink()">Copy</button>
+      </div>
+      <div class="share-note">Anyone with this link can view your savings summary.</div>
+    </div>
+  </div>
+
+  <!-- REMINDERS -->
+  <div class="notif-section">
+    <div class="share-title" style="margin-bottom:12px">🔔 Reminder settings</div>
+    <div class="notif-row">
+      <div><div class="notif-label">📧 Email reminders</div><div class="notif-sub">Last day of each month</div></div>
+      <div class="toggle on" id="tog-email" onclick="toggleNotif('email')"></div>
+    </div>
+    <div id="email-field-section">
+      <div class="email-field-wrap">
+        <input class="share-input" type="email" id="reminder-email" placeholder="your@email.com">
+        <button class="share-btn" onclick="saveReminderEmail()">Save</button>
+      </div>
+    </div>
+    <div class="notif-row">
+      <div><div class="notif-label">📱 Push notifications</div><div class="notif-sub">Reminder on your device</div></div>
+      <div class="toggle on" id="tog-push" onclick="toggleNotif('push')"></div>
+    </div>
+  </div>
+
+  <div class="bottom-space"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'p365_data_v1';
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const monthEmojis = ['❄️','💌','🌱','🌸','☀️','🏖️','🌻','🍦','🍂','🎃','🍁','🎄'];
+const now = new Date();
+const currentMonthIdx = now.getMonth();
+
+// State
+let xVal = 50;
+let goalVal = null;
+let checkedMonths = new Set();
+let months = [];
+let contacts = []; // real email contacts
+let currentMode = 'monthly';
+let calcSuggestedX = null;
+
+// ── PERSISTENCE ──────────────────────────────────────────────
+function saveState() {
+  try {
+    const data = {
+      xVal,
+      goalVal,
+      checkedMonths: [...checkedMonths],
+      contacts,
+      currentMode,
+      reminderEmail: document.getElementById('reminder-email').value || ''
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    xVal = data.xVal || 50;
+    goalVal = data.goalVal || null;
+    checkedMonths = new Set(data.checkedMonths || []);
+    contacts = data.contacts || [];
+    currentMode = data.currentMode || 'monthly';
+    // Restore UI inputs
+    document.getElementById('inp-x').value = xVal;
+    if (goalVal) document.getElementById('inp-goal').value = goalVal;
+    if (data.reminderEmail) document.getElementById('reminder-email').value = data.reminderEmail;
+  } catch(e) {}
+}
+
+// ── MODE SWITCHING ────────────────────────────────────────────
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-monthly').classList.toggle('active', mode === 'monthly');
+  document.getElementById('mode-goal').classList.toggle('active', mode === 'goal');
+  document.getElementById('panel-monthly').style.display = mode === 'monthly' ? 'block' : 'none';
+  document.getElementById('panel-goal').style.display = mode === 'goal' ? 'block' : 'none';
+  if (mode === 'goal') {
+    // Pre-fill months left
+    const monthsLeft = 12 - currentMonthIdx;
+    document.getElementById('calc-months-left').value = monthsLeft;
+    recalcFromGoal();
+  }
+  saveState();
+}
+
+// ── GOAL CALCULATOR ───────────────────────────────────────────
+function recalcFromGoal() {
+  const target = parseFloat(document.getElementById('calc-target').value);
+  const mLeft = parseInt(document.getElementById('calc-months-left').value) || (12 - currentMonthIdx);
+  const resultEl = document.getElementById('calc-result');
+  const resultVal = document.getElementById('calc-result-value');
+  const resultSub = document.getElementById('calc-result-sub');
+  const applyBtn = document.getElementById('calc-apply-btn');
+
+  if (!target || target <= 0) {
+    resultEl.style.display = 'none';
+    applyBtn.style.display = 'none';
+    calcSuggestedX = null;
+    return;
+  }
+
+  // Plan total formula: x*1 + x*2 + ... + x*12 = x * 78
+  // But for remaining months only: sum of (currentMonthIdx+1) to 12
+  const startN = currentMonthIdx + 1;
+  let sumN = 0;
+  for (let i = startN; i <= 12; i++) sumN += i;
+
+  const x = target / sumN;
+  calcSuggestedX = Math.ceil(x * 100) / 100;
+  const planTotal = monthNames.reduce((s, _, i) => s + calcSuggestedX * (i + 1), 0);
+
+  resultEl.style.display = 'block';
+  applyBtn.style.display = 'block';
+  resultVal.textContent = '$' + calcSuggestedX.toFixed(2);
+  resultSub.textContent = `Plan total: $${Math.round(planTotal).toLocaleString()} · ${mLeft} months left`;
+}
+
+function applyFromGoalCalc() {
+  if (!calcSuggestedX) return;
+  const target = parseFloat(document.getElementById('calc-target').value);
+  xVal = calcSuggestedX;
+  goalVal = target;
+  document.getElementById('inp-x').value = xVal;
+  document.getElementById('inp-goal').value = goalVal;
+  months = buildMonths(xVal);
+  renderAll();
+  switchMode('monthly');
+  showToast(`✓ Plan set — $${xVal.toFixed(2)}/month base`);
+  saveState();
+}
+
+// ── CONTACTS ──────────────────────────────────────────────────
+function renderContacts() {
+  const el = document.getElementById('contacts-list');
+  if (contacts.length === 0) {
+    el.innerHTML = '<div class="empty-contacts">No contacts yet — add emails above</div>';
+    return;
+  }
+  el.innerHTML = contacts.map((email, i) => `
+    <div class="contact-item">
+      <div class="contact-avatar">${email[0].toUpperCase()}</div>
+      <div class="contact-email">${email}</div>
+      <button class="contact-remove" onclick="removeContact(${i})">✕</button>
+    </div>`).join('');
+}
+
+function addContact() {
+  const input = document.getElementById('new-contact-email');
+  const email = input.value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { showToast('Enter a valid email'); return; }
+  if (contacts.includes(email)) { showToast('Already added'); return; }
+  contacts.push(email);
+  input.value = '';
+  renderContacts();
+  saveState();
+  showToast(`✓ ${email} added`);
+}
+
+function removeContact(i) {
+  contacts.splice(i, 1);
+  renderContacts();
+  saveState();
+}
+
+function sendToContacts() {
+  if (contacts.length === 0) { showToast('Add contacts first'); return; }
+  const total = months.reduce((s,m)=>s+m.amount,0);
+  const saved = months.filter((_,i)=>checkedMonths.has(i)).reduce((s,m)=>s+m.amount,0);
+  const subject = encodeURIComponent('My personal_365_Savings progress 💰');
+  const body = encodeURIComponent(`Hey! Here's my savings plan update:\n\nBase amount: $${xVal}/month\nPlan total: $${total.toLocaleString()}\nSaved so far: $${saved.toLocaleString()}\n${goalVal ? 'Goal: $' + goalVal.toLocaleString() + '\n' : ''}\nTracking with personal_365_Savings`);
+  const to = contacts.join(',');
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  showToast(`📧 Opening email to ${contacts.length} contact${contacts.length > 1 ? 's' : ''}`);
+}
+
+// ── MONTHS ────────────────────────────────────────────────────
+function buildMonths(x) {
+  return monthNames.map((name, i) => {
+    const n = i + 1;
+    const amount = x * n;
+    return { name, amount, n, emoji: monthEmojis[i] };
+  });
+}
+
+function getLastDayDate(idx) { return new Date(now.getFullYear(), idx + 1, 0); }
+function daysUntil(d) { return Math.max(0, Math.ceil((d - now) / 86400000)); }
+
+function applySettings() {
+  const xRaw = parseFloat(document.getElementById('inp-x').value);
+  const gRaw = parseFloat(document.getElementById('inp-goal').value);
+  if (isNaN(xRaw) || xRaw <= 0) { showToast('Please enter a valid base amount'); return; }
+  xVal = xRaw;
+  goalVal = (!isNaN(gRaw) && gRaw > 0) ? gRaw : null;
+  months = buildMonths(xVal);
+  renderAll();
+  saveState();
+  showToast(`Plan updated — base $${xVal}${goalVal ? ', goal $' + goalVal.toLocaleString() : ''} ✓`);
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderHeader() {
+  const total = months.reduce((s, m) => s + m.amount, 0);
+  document.getElementById('hdr-x').textContent = '$' + xVal;
+  document.getElementById('hdr-plan').textContent = '$' + total.toLocaleString();
+  if (goalVal) {
+    document.getElementById('hdr-goal').textContent = '$' + goalVal.toLocaleString();
+    document.getElementById('hdr-goal-badge').style.display = 'flex';
+  } else {
+    document.getElementById('hdr-goal-badge').style.display = 'none';
+  }
+}
+
+function renderGoalBanner() {
+  const banner = document.getElementById('goal-banner');
+  if (!goalVal) { banner.style.display = 'none'; return; }
+  banner.style.display = 'block';
+  const total = months.reduce((s, m) => s + m.amount, 0);
+  const pct = Math.round((total / goalVal) * 100);
+  const barW = Math.min(100, pct);
+  const diff = total - goalVal;
+  document.getElementById('goal-numbers').innerHTML = `$${total.toLocaleString()} <span>/ $${goalVal.toLocaleString()}</span>`;
+  document.getElementById('goal-pct').textContent = pct + '%';
+  document.getElementById('goal-bar-plan').style.width = barW + '%';
+  document.getElementById('gs-plan').textContent = '$' + total.toLocaleString();
+  document.getElementById('gs-goal').textContent = '$' + goalVal.toLocaleString();
+  const gapEl = document.getElementById('goal-gap');
+  if (diff >= 0) {
+    gapEl.className = 'goal-gap over';
+    gapEl.innerHTML = `🎉 Your plan <strong>exceeds your goal by $${diff.toLocaleString()}</strong>`;
+  } else {
+    gapEl.className = 'goal-gap';
+    gapEl.innerHTML = `You're <strong>$${Math.abs(diff).toLocaleString()} short</strong> of your goal — try raising your monthly base.`;
+  }
+}
+
+function renderProgress() {
+  const total = months.reduce((s, m) => s + m.amount, 0);
+  const done = checkedMonths.size;
+  const saved = months.filter((_, i) => checkedMonths.has(i)).reduce((s, m) => s + m.amount, 0);
+  const pct = Math.round((done / 12) * 100);
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-fraction').textContent = `${done} / 12`;
+  document.getElementById('prog-saved').textContent = '$' + saved.toLocaleString();
+  document.getElementById('prog-left').textContent = '$' + (total - saved).toLocaleString();
+}
+
+function renderNextBanner() {
+  let nextIdx = -1;
+  for (let i = currentMonthIdx; i < 12; i++) { if (!checkedMonths.has(i)) { nextIdx = i; break; } }
+  const nb = document.getElementById('next-banner');
+  if (nextIdx === -1) {
+    nb.innerHTML = `<div class="next-icon">🏆</div><div><div class="next-title">All done for the year!</div><div class="next-sub">You completed all 12 months 🎉</div></div>`;
+    return;
+  }
+  const m = months[nextIdx];
+  const ld = getLastDayDate(nextIdx);
+  const days = daysUntil(ld);
+  document.getElementById('next-title').textContent = `Next: ${m.name.slice(0,3)} ${ld.getDate()} — save $${m.amount}`;
+  document.getElementById('next-sub').textContent = days === 0 ? 'Due today!' : `${days} day${days !== 1 ? 's' : ''} away`;
+}
+
+function renderMonths() {
+  const list = document.getElementById('months-list');
+  list.innerHTML = '';
+  months.forEach((m, i) => {
+    const isDone = checkedMonths.has(i);
+    const isCurrent = i === currentMonthIdx && !isDone;
+    const card = document.createElement('div');
+    card.className = 'month-card' + (isDone ? ' done' : '') + (isCurrent ? ' current' : '');
+    const ld = getLastDayDate(i);
+    card.innerHTML = `
+      <div class="m-icon ${isDone ? 'done-icon' : isCurrent ? 'current-icon' : 'pending-icon'}">${isDone ? '✅' : isCurrent ? '🎯' : m.emoji}</div>
+      <div class="m-info">
+        <div class="m-name">${m.name}</div>
+        <div class="m-sub">${isDone ? 'Marked saved ✓' : `Reminder: ${m.name.slice(0,3)} ${ld.getDate()}`}</div>
+      </div>
+      <div class="m-right">
+        <div class="m-amount">$${m.amount % 1 === 0 ? m.amount.toLocaleString() : m.amount.toFixed(2)}</div>
+        <div class="m-formula">${m.n === 1 ? 'flat' : `$${xVal} × ${m.n}`}</div>
+      </div>`;
+    card.addEventListener('click', () => {
+      if (isDone) checkedMonths.delete(i); else { checkedMonths.add(i); showToast(`$${m.amount} saved for ${m.name}! 🎉`); }
+      renderAll();
+      saveState();
+    });
+    list.appendChild(card);
+  });
+}
+
+function renderAll() {
+  renderHeader();
+  renderGoalBanner();
+  renderProgress();
+  renderNextBanner();
+  renderMonths();
+}
+
+// ── SHARE TABS ────────────────────────────────────────────────
+function switchTab(tab) {
+  ['email','contacts','link'].forEach(t => {
+    document.getElementById('pane-' + t).classList.toggle('visible', t === tab);
+    document.querySelectorAll('.share-tab')[['email','contacts','link'].indexOf(t)].classList.toggle('active', t === tab);
+  });
+}
+
+function shareEmail() {
+  const v = document.getElementById('share-email').value.trim();
+  if (!v || !v.includes('@')) { showToast('Enter a valid email'); return; }
+  const total = months.reduce((s,m)=>s+m.amount,0);
+  const saved = months.filter((_,i)=>checkedMonths.has(i)).reduce((s,m)=>s+m.amount,0);
+  const subject = encodeURIComponent('My personal_365_Savings progress 💰');
+  const body = encodeURIComponent(`Hey! Here's my savings plan update:\n\nBase amount: $${xVal}/month\nPlan total: $${total.toLocaleString()}\nSaved so far: $${saved.toLocaleString()}\n${goalVal ? 'Goal: $' + goalVal.toLocaleString() + '\n' : ''}\nTracking with personal_365_Savings`);
+  window.location.href = `mailto:${v}?subject=${subject}&body=${body}`;
+  showToast(`📧 Opening email to ${v}`);
+}
+
+function copyLink() {
+  const link = document.getElementById('link-val').value;
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => showToast('Link copied! 🔗'));
+  else { document.getElementById('link-val').select(); document.execCommand('copy'); showToast('Link copied! 🔗'); }
+}
+
+function saveReminderEmail() {
+  const v = document.getElementById('reminder-email').value.trim();
+  if (!v || !v.includes('@')) { showToast('Enter a valid email'); return; }
+  saveState();
+  showToast(`✉️ Reminder email saved ✓`);
+}
+
+const toggleStates = { email: true, push: true };
+function toggleNotif(type) {
+  toggleStates[type] = !toggleStates[type];
+  const el = document.getElementById('tog-' + type);
+  el.className = 'toggle ' + (toggleStates[type] ? 'on' : 'off');
+  if (type === 'email') {
+    document.getElementById('email-field-section').style.display = toggleStates[type] ? 'block' : 'none';
+  }
+  showToast(toggleStates[type] ? `🔔 ${type === 'email' ? 'Email' : 'Push'} reminders on` : `🔕 ${type === 'email' ? 'Email' : 'Push'} reminders off`);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+loadState();
+months = buildMonths(xVal);
+renderAll();
+renderContacts();
+switchMode(currentMode);
+</script>
+</body>
+</html>
