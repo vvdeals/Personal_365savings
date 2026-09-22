@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ledger — Monthly Expenses</title>
+<style>
+  :root{
+    --bg:#f6f5f1;
+    --panel:#ffffff;
+    --ink:#20241f;
+    --ink-soft:#5d6259;
+    --line:#e2e1d8;
+    --accent:#3f6b4f;
+    --accent-soft:#e7efe7;
+    --danger:#a34435;
+    --radius:10px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1b1c18;
+      --panel:#242620;
+      --ink:#eceae2;
+      --ink-soft:#a3a99a;
+      --line:#34362e;
+      --accent:#7fb894;
+      --accent-soft:#2a3327;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1b1c18;
+    --panel:#242620;
+    --ink:#eceae2;
+    --ink-soft:#a3a99a;
+    --line:#34362e;
+    --accent:#7fb894;
+    --accent-soft:#2a3327;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%;}
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Iowan Old Style','Georgia',serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:620px;
+    margin:0 auto;
+    padding:32px 20px 80px;
+  }
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    margin-bottom:28px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+  }
+  h1{
+    font-size:1.5rem;
+    font-weight:600;
+    letter-spacing:0.2px;
+    margin:0;
+  }
+  .month-nav{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  .month-nav button{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink);
+    width:30px;height:30px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:1rem;
+    line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .month-nav button:hover{background:var(--accent-soft);}
+  .month-label{
+    min-width:118px;
+    text-align:center;
+    font-size:0.95rem;
+    color:var(--ink-soft);
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:22px;
+  }
+  .panel h2{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+    font-weight:600;
+  }
+  .total-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  .total-row .amount{
+    font-size:2.1rem;
+    font-weight:600;
+  }
+  .total-row .sub{
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  form.entry-form{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  .entry-form input, .entry-form select{
+    font-family:inherit;
+    font-size:0.95rem;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .entry-form input[type="number"]{
+    width:120px;
+    flex:0 0 auto;
+  }
+  .entry-form select, .entry-form input[name="newcat"]{
+    flex:1 1 160px;
+  }
+  .entry-form input[name="newcat"]{
+    display:none;
+  }
+  .entry-form button{
+    font-family:inherit;
+    font-size:0.95rem;
+    padding:10px 18px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+  .entry-form button:hover{filter:brightness(0.95);}
+  .cat-toggle{
+    font-size:0.8rem;
+    color:var(--accent);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:0;
+    text-decoration:underline;
+    flex:0 0 100%;
+    text-align:left;
+  }
+  ul.entries{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  ul.entries li{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:0.95rem;
+  }
+  ul.entries li:last-child{border-bottom:none;}
+  ul.entries .cat{color:var(--ink);}
+  ul.entries .amt{font-weight:600;}
+  ul.entries .del{
+    background:none;border:none;color:var(--ink-soft);
+    cursor:pointer;font-size:1.1rem;padding:0 0 0 14px;
+    line-height:1;
+  }
+  ul.entries .del:hover{color:var(--danger);}
+  .empty{
+    color:var(--ink-soft);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:0.9rem;
+    padding:6px 0;
+  }
+  .cat-bars{display:flex;flex-direction:column;gap:10px;}
+  .cat-bar-row{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  .cat-bar-head{
+    display:flex;justify-content:space-between;
+    font-size:0.9rem;margin-bottom:4px;
+  }
+  .cat-bar-track{
+    height:6px;background:var(--accent-soft);border-radius:4px;overflow:hidden;
+  }
+  .cat-bar-fill{
+    height:100%;background:var(--accent);border-radius:4px;
+  }
+  .history-month{
+    border-bottom:1px solid var(--line);
+    padding:12px 0;
+  }
+  .history-month:last-child{border-bottom:none;}
+  .history-head{
+    display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  .history-head .hm-label{font-size:0.98rem;}
+  .history-head .hm-total{font-weight:600;}
+  .history-detail{
+    display:none;
+    margin-top:10px;
+    padding-left:2px;
+  }
+  .history-detail.open{display:block;}
+  .history-detail .row{
+    display:flex;justify-content:space-between;
+    font-size:0.87rem;
+    color:var(--ink-soft);
+    padding:3px 0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  .caret{
+    color:var(--ink-soft);
+    font-size:0.75rem;
+    transition:transform 0.15s ease;
+  }
+  .caret.open{transform:rotate(90deg);}
+  footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:0.78rem;
+    margin-top:30px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Ledger</h1>
+    <div class="month-nav">
+      <button id="prevMonth" aria-label="Previous month">‹</button>
+      <span class="month-label" id="monthLabel"></span>
+      <button id="nextMonth" aria-label="Next month">›</button>
+    </div>
+  </header>
+
+  <div class="panel">
+    <h2>Spent this month</h2>
+    <div class="total-row">
+      <span class="amount" id="monthTotal">$0</span>
+      <span class="sub" id="entryCount">0 entries</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Add an expense</h2>
+    <form class="entry-form" id="entryForm">
+      <input type="number" name="amount" placeholder="Amount" min="0" step="0.01" required>
+      <select name="category" id="categorySelect"></select>
+      <input type="text" name="newcat" placeholder="New category name">
+      <button type="button" class="cat-toggle" id="catToggle">+ new category</button>
+      <button type="submit">Add</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>By category, this month</h2>
+    <div class="cat-bars" id="catBars"></div>
+    <div class="empty" id="catEmpty" style="display:none;">No expenses logged for this month yet.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Entries this month</h2>
+    <ul class="entries" id="entryList"></ul>
+    <div class="empty" id="entryEmpty" style="display:none;">Nothing here yet — add your first expense above.</div>
+  </div>
+
+  <div class="panel">
+    <h2>History</h2>
+    <div id="historyList"></div>
+    <div class="empty" id="historyEmpty" style="display:none;">Past months will show up here once you have more than one month of entries.</div>
+  </div>
+
+  <footer>Stored privately in this browser only.</footer>
+</div>
+
+<script>
+(function(){
+  var STORE_KEY = 'ledger_expenses_v1';
+  var CAT_KEY = 'ledger_categories_v1';
+  var defaultCategories = ['Groceries','Rent','Utilities','Transport','Dining out','Health','Shopping','Entertainment','Other'];
+
+  function loadEntries(){
+    try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+    catch(e){ return []; }
+  }
+  function saveEntries(list){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function loadCategories(){
+    try{
+      var c = JSON.parse(localStorage.getItem(CAT_KEY));
+      return (c && c.length) ? c : defaultCategories.slice();
+    }catch(e){ return defaultCategories.slice(); }
+  }
+  function saveCategories(list){
+    try{ localStorage.setItem(CAT_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  var entries = loadEntries();
+  var categories = loadCategories();
+
+  var now = new Date();
+  var viewYear = now.getFullYear();
+  var viewMonth = now.getMonth(); // 0-indexed
+
+  var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function monthKey(y,m){ return y + '-' + String(m+1).padStart(2,'0'); }
+  function fmtMoney(n){
+    var v = Math.round(n*100)/100;
+    return '$' + v.toLocaleString(undefined,{minimumFractionDigits: v%1===0?0:2, maximumFractionDigits:2});
+  }
+
+  var catSelect = document.getElementById('categorySelect');
+  var newCatInput = document.querySelector('input[name="newcat"]');
+  var catToggle = document.getElementById('catToggle');
+
+  function renderCategoryOptions(){
+    catSelect.innerHTML = '';
+    categories.forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      catSelect.appendChild(opt);
+    });
+  }
+  renderCategoryOptions();
+
+  var showingNewCat = false;
+  catToggle.addEventListener('click', function(){
+    showingNewCat = !showingNewCat;
+    if(showingNewCat){
+      catSelect.style.display = 'none';
+      newCatInput.style.display = 'block';
+      catToggle.textContent = 'choose existing category';
+      newCatInput.focus();
+    } else {
+      catSelect.style.display = '';
+      newCatInput.style.display = 'none';
+      catToggle.textContent = '+ new category';
+    }
+  });
+
+  document.getElementById('entryForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    var amount = parseFloat(fd.get('amount'));
+    if(!amount || amount <= 0) return;
+    var category;
+    if(showingNewCat){
+      category = (fd.get('newcat') || '').trim();
+      if(!category) return;
+      if(categories.indexOf(category) === -1){
+        categories.push(category);
+        saveCategories(categories);
+        renderCategoryOptions();
+      }
+    } else {
+      category = fd.get('category');
+    }
+    entries.push({
+      id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      month: monthKey(viewYear, viewMonth),
+      category: category,
+      amount: amount
+    });
+    saveEntries(entries);
+    e.target.reset();
+    showingNewCat = false;
+    catSelect.style.display = '';
+    newCatInput.style.display = 'none';
+    catToggle.textContent = '+ new category';
+    renderAll();
+  });
+
+  document.getElementById('prevMonth').addEventListener('click', function(){
+    viewMonth--; if(viewMonth < 0){ viewMonth = 11; viewYear--; }
+    renderAll();
+  });
+  document.getElementById('nextMonth').addEventListener('click', function(){
+    viewMonth++; if(viewMonth > 11){ viewMonth = 0; viewYear++; }
+    renderAll();
+  });
+
+  function entriesForMonth(key){
+    return entries.filter(function(en){ return en.month === key; });
+  }
+
+  function deleteEntry(id){
+    entries = entries.filter(function(en){ return en.id !== id; });
+    saveEntries(entries);
+    renderAll();
+  }
+
+  function renderAll(){
+    var key = monthKey(viewYear, viewMonth);
+    document.getElementById('monthLabel').textContent = monthNames[viewMonth] + ' ' + viewYear;
+
+    var monthEntries = entriesForMonth(key);
+    var total = monthEntries.reduce(function(s,e){ return s + e.amount; }, 0);
+    document.getElementById('monthTotal').textContent = fmtMoney(total);
+    document.getElementById('entryCount').textContent = monthEntries.length + (monthEntries.length===1 ? ' entry' : ' entries');
+
+    // entry list, most recent first
+    var listEl = document.getElementById('entryList');
+    listEl.innerHTML = '';
+    var sorted = monthEntries.slice().reverse();
+    sorted.forEach(function(en){
+      var li = document.createElement('li');
+      var left = document.createElement('span');
+      left.className = 'cat';
+      left.textContent = en.category;
+      var right = document.createElement('span');
+      right.style.display = 'flex';
+      right.style.alignItems = 'center';
+      var amt = document.createElement('span');
+      amt.className = 'amt';
+      amt.textContent = fmtMoney(en.amount);
+      var del = document.createElement('button');
+      del.className = 'del';
+      del.setAttribute('aria-label','Delete entry');
+      del.textContent = '×';
+      del.addEventListener('click', function(){ deleteEntry(en.id); });
+      right.appendChild(amt);
+      right.appendChild(del);
+      li.appendChild(left);
+      li.appendChild(right);
+      listEl.appendChild(li);
+    });
+    document.getElementById('entryEmpty').style.display = monthEntries.length ? 'none' : 'block';
+
+    // category breakdown
+    var byCat = {};
+    monthEntries.forEach(function(en){
+      byCat[en.category] = (byCat[en.category]||0) + en.amount;
+    });
+    var catKeys = Object.keys(byCat).sort(function(a,b){ return byCat[b]-byCat[a]; });
+    var barsEl = document.getElementById('catBars');
+    barsEl.innerHTML = '';
+    var maxVal = catKeys.length ? byCat[catKeys[0]] : 0;
+    catKeys.forEach(function(c){
+      var row = document.createElement('div');
+      row.className = 'cat-bar-row';
+      var head = document.createElement('div');
+      head.className = 'cat-bar-head';
+      head.innerHTML = '<span>'+escapeHtml(c)+'</span><span>'+fmtMoney(byCat[c])+'</span>';
+      var track = document.createElement('div');
+      track.className = 'cat-bar-track';
+      var fill = document.createElement('div');
+      fill.className = 'cat-bar-fill';
+      fill.style.width = (maxVal ? (byCat[c]/maxVal*100) : 0) + '%';
+      track.appendChild(fill);
+      row.appendChild(head);
+      row.appendChild(track);
+      barsEl.appendChild(row);
+    });
+    document.getElementById('catEmpty').style.display = catKeys.length ? 'none' : 'block';
+
+    renderHistory(key);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderHistory(currentKey){
+    var byMonth = {};
+    entries.forEach(function(en){
+      if(!byMonth[en.month]) byMonth[en.month] = {};
+      byMonth[en.month][en.category] = (byMonth[en.month][en.category]||0) + en.amount;
+    });
+    var monthKeys = Object.keys(byMonth).filter(function(k){ return k !== currentKey; }).sort().reverse();
+
+    var histEl = document.getElementById('historyList');
+    histEl.innerHTML = '';
+    monthKeys.forEach(function(k){
+      var parts = k.split('-');
+      var y = parseInt(parts[0],10), m = parseInt(parts[1],10)-1;
+      var cats = byMonth[k];
+      var total = Object.keys(cats).reduce(function(s,c){ return s + cats[c]; }, 0);
+
+      var wrap = document.createElement('div');
+      wrap.className = 'history-month';
+
+      var head = document.createElement('div');
+      head.className = 'history-head';
+      head.innerHTML = '<span class="hm-label"><span class="caret">▸</span> '+monthNames[m]+' '+y+'</span><span class="hm-total">'+fmtMoney(total)+'</span>';
+
+      var detail = document.createElement('div');
+      detail.className = 'history-detail';
+      var catKeys = Object.keys(cats).sort(function(a,b){ return cats[b]-cats[a]; });
+      catKeys.forEach(function(c){
+        var row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML = '<span>'+escapeHtml(c)+'</span><span>'+fmtMoney(cats[c])+'</span>';
+        detail.appendChild(row);
+      });
+
+      head.addEventListener('click', function(){
+        detail.classList.toggle('open');
+        head.querySelector('.caret').classList.toggle('open');
+      });
+
+      wrap.appendChild(head);
+      wrap.appendChild(detail);
+      histEl.appendChild(wrap);
+    });
+    document.getElementById('historyEmpty').style.display = monthKeys.length ? 'none' : 'block';
+  }
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
